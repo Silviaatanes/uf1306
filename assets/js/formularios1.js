@@ -50,11 +50,13 @@ function validarFormulario() {
     // Declaración de variables
     var valido = true;
     var expRegNombre = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ ]{3,50}$/;
+    var expRegEmail =/^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/ ;
 
     // Objetos document HTML
-    var formulario = document.getElementById("form")
+    var formulario = document.getElementById("form");
     var nombre = document.getElementById("name");
     var email = document.getElementById("email");
+    
 
     // Validar con JavaScript que el campo “nombre” no esté vacío
 
@@ -66,6 +68,14 @@ function validarFormulario() {
         valido = false;
     }
 
+    else if (email.value == "") {
+        // Si está vacío se mostrará el mensaje “El campo ‘email’ es obligatorio”
+        alert("El campo 'email' es obligatorio");
+        // y se pondrá el foco en el campo “email”
+        email.focus();
+        valido = false;
+    }
+
     // Validar con JavaScript que el campo “nombre” sólo acepte caracteres de letras y espacios en blanco.
 
     else if (!expRegNombre.exec(nombre.value)) {
@@ -73,6 +83,14 @@ function validarFormulario() {
         alert("El campo nombre sólo acepta letras y espacios en blanco ");
         // y se pondrá el foco en el campo “nombre”
         nombre.focus();
+       
+       // Validar con JavaScript que el campo “email” sólo acepte caracteres de letras y espacios en blanco. valido = false;
+    }
+    else if (!expRegEmail.exec(email.value)) {
+        // Si no es válido mostrará el mensaje “El campo email sólo acepta letras y espacios en blanco”
+        alert("El campo email no se ha cubierto correctamente ");
+        // y se pondrá el foco en el campo “email”
+        email.focus();
         valido = false;
     }
 
@@ -82,4 +100,6 @@ function validarFormulario() {
         alert("Formulario enviado");
         formulario.submit();
     }
+    
+    
 }
