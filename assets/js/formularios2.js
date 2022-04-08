@@ -17,10 +17,8 @@ window.onload = function() {
 
     /*
         addEventListener()
-
         Sintáxis:
         addEventListener( evento-a-escuchar, función-a-lanzar, booleano )
-
         Permanece a la escucha de un evento y cuando se activa ejecuta la función
     */
 
@@ -39,15 +37,11 @@ window.onload = function() {
 
 /*
     Función validarFormulario()
-
     Parámetro: objectHTMLImputElement
-
     Realiza las validaciones de los campos de formulario
     Según los requisitos del Enunciado
-
     Si todos los campos son válidos se envía el formulario
     si no, no se envía el formulario y se deshabilita el botón de enviar
-
     @return: booleano
 */
 
@@ -58,6 +52,7 @@ function validarFormulario( enviar ) {
     var nombre = document.getElementById("name");
     var edad = document.getElementById("edad");
     var email = document.getElementById("email");
+    var tfno = document.getElementById("tfno");
     var mensaje = document.getElementById("mensaje");
 
     // Resultado de la validación: por defecto, FALSE
@@ -66,9 +61,10 @@ function validarFormulario( enviar ) {
     // Validamos cada uno de los apartados con llamadas a sus funciones correspondientes.
     if (
         validarSoloTexto( nombre )
-        // && validarNumero( edad, 0, 120 )
+        && validarNumero( edad, 18, 120 )
         && validarEmail( email )
-        // && validarTextarea( mensaje, 3, 255 )
+        && validarTelefono( tfno )
+        && validarTextarea( mensaje, 4, 255 )
         && confirm("¿Deseas enviar el formulario con estos datos?")
     ){
         // El código de error 0 Devuelve TRUE ( @return = true )
@@ -93,22 +89,17 @@ function validarFormulario( enviar ) {
 
 /*
     Función mensajeError()
-
     Parámetros:
         error: Number. El nº de error a mostrar en el texto de info al usuario
         name: String. El name del input que no supera la validación
         id: String. El ID del elemento que muestra el mensaje de error
-
     Agrupa todos los errores por numeros en una sóla función.
-
     Cada número de error tiene asignado un texto informativo al usuario
-
     Se obtiene un elemennto del DOM por ID donde mostrar un mensaje al usuario
         El ID de ese elemento, por defecto, es 'errores'
         Se inserta en el DOM un texto informativo sobre el fallo de validación
         Se cambia la clase de ese elemento
             para aplicar estilos CSS según el nº de error
-
     @return: Booleano
 */
 
@@ -155,6 +146,28 @@ function mensajeError ( error, elemento="", min=0, max=300, id="errores" ) {
             etiquetaInfo.innerHTML = texto;
         break;
 
+        case 3:
+            texto += "El correo electrónico no parece un email válido";
+            etiquetaInfo.innerHTML = texto;
+        break;
+
+        case 4:
+            texto += "El teléfono no parece correcto. Escriba sólo números sin espacios";
+            etiquetaInfo.innerHTML = texto;
+        break;
+
+        case 5:
+            texto += "Debe estar comprendida entre ";
+            texto += min + " y " + max;
+            etiquetaInfo.innerHTML = texto;
+        break;
+
+        case 6:
+            texto += "La longitud del texto debe estar entre ";
+            texto += min + " y " + max + " caracteres";
+            etiquetaInfo.innerHTML = texto;
+        break;
+
         // default:
     }
 
@@ -166,16 +179,11 @@ function mensajeError ( error, elemento="", min=0, max=300, id="errores" ) {
 
 /*
     Función validarObligatorio()
-
     Parámetro: objectHTMLImputElement
-
         Comprueba si el campo es obligatorio por su atributo 'required'
         y, de serlo, también debe cumplir que contenga algo.
-
         Si no supera la condición, ejecuta el mensajeError(1) que retorna FALSE
-
         El resto de casos retorna el valor inicial TRUE
-
     @return: Booleano
 */
 
@@ -203,44 +211,147 @@ function validarObligatorio( elemento ) {
 
 /*
     Función validarSoloTexto()
-
     Parámetro: objectHTMLImputElement
-
     Comprueba si la validación supera validarObligatorio()
         De ser así, ejecuta la validación por expresión regular
-
     Si la supera retorna TRUE
-
     Si no, ejecuta el mensajeError(2) y retorna FALSE
-
     @return: Booleano
 */
 
+
+function validarSoloTexto( elemento ) {
+
+    // Espresión regular para aceptar sólo letras del alfabeto español
+    // y espacios en blanco
+
+    var expresionRegular = /^[a-zA-ZÑñáéíóúÁÉÍÓÚ\s]+$/;
+
+    // validarObligatorio() Escribe un mensaje de error en el DOM
+    // y devuelve true | false
+
+    var validacion = validarObligatorio( elemento );
+
+    switch ( validacion ) {
+
+        // Si el valor de 'validacion' es TRUE significa que
+        // O no es obligagorio, o contiene algo
+
+        // Validación de campo obligatorio superada en case validacion = true
+        case true:
+            // Se ejecuta la validación por expresión regular ( true | false )
+            var resultadoExpRegular = expresionRegular.exec( elemento.value );
+
+            // Si el resultado de la validación NO ES true
+            if ( !resultadoExpRegular ) {
+
+                // Se ejecuta la función con el mensaje de error en DOM
+                // El mensajeError(2) inserta un mensaje de error en el DOM
+                // y retorna FALSE
+                validacion = mensajeError( 2, elemento );
+                // validacion = false;
+            }
+        break;
+
+        // Si el valor de 'validacion' es FALSE no hay nada que hacer
+        // case false:
+        //     validacion = false
+        // break;
+
+        // default:
+    }
+
+    // Se devuelve el resultado de la validación (true | false)
+    return validacion;
+}
+
+
+
 function validarEmail( elemento ) {
 
-    
     var expresionRegular = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
+
 
     var validacion = validarObligatorio( elemento );
 
     switch ( validacion ) {
 
         case true:
-           
+
             var resultadoExpRegular = expresionRegular.exec( elemento.value );
 
-           
             if ( !resultadoExpRegular ) {
-               
                 validacion = mensajeError( 3, elemento );
-            
             }
         break;
-
-
-      
     }
 
     return validacion;
 }
+
+
+
+
+
+function validarTelefono( elemento ) {
+
+    var expresionRegular = /^[6-9]{1}[0-9]{8}$/;
+
+    var validacion = validarObligatorio( elemento );
+
+    switch ( validacion ) {
+
+        case true:
+
+            var resultadoExpRegular = expresionRegular.exec( elemento.value );
+
+            if ( !resultadoExpRegular ) {
+                validacion = mensajeError( 4, elemento );
+            }
+        break;
+    }
+
+    return validacion;
+}
+
+
+
+
+function validarNumero( elemento, minimo, maximo ) {
+
+    var validacion = true;
+
+    switch ( validacion ) {
+
+        case true:
+
+            if ( elemento.value < minimo || elemento.value > maximo ) {
+                validacion = mensajeError( 5, elemento, minimo, maximo );
+            }
+        break;
+    }
+
+    return validacion;
+}
+
+
+function validarTextarea( elemento, minimo, maximo ) {
+
+    var validacion = validarObligatorio( elemento );
+
+    var texto = elemento.value;
+
+    switch ( validacion ) {
+
+        case true:
+
+            if ( texto.length < minimo || texto.length > maximo ) {
+                validacion = mensajeError( 6, elemento, minimo, maximo );
+            }
+        break;
+    }
+
+    return validacion;
+}
+
 
